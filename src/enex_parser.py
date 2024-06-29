@@ -3,7 +3,7 @@ from lxml import etree
 from datetime import datetime, timezone
 from note import Note
 
-logger = logging.getLogger("enex2md." + __name__)
+logger = logging.getLogger("enex2markdown." + __name__)
 
 # Thanks to http://www.hanxiaogang.com/writing/parsing-evernote-export-file-enex-using-python/
 # for inspiration
@@ -69,19 +69,19 @@ class CreatedHandler(BaseHandler):
     def handleEvent(self, action, elem):
         if action == "end":
             datestr = elem.text
-            logger.debug(f"Created: {datestr}")
+            logger.info(f"Created: {datestr}")
             self.note_store.note.created = parseDateTime(datestr)
 
 class UpdatedHandler(BaseHandler):
     def handleEvent(self, action, elem):
         if action == "end":
             datestr = elem.text
-            logger.debug(f"Updated: {datestr}")
             self.note_store.note.updated = parseDateTime(datestr)
 
 class TitleHandler(BaseHandler):
     def handleEvent(self, action, elem):
         if action == "end":
+            logger.info(f"Title: {elem.text}")
             self.note_store.note.title = elem.text
 
 class TagsHandler(BaseHandler):
