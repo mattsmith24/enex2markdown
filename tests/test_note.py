@@ -67,6 +67,24 @@ def test_output_resources(note_writer, result_string_io, resource_name, resource
     note_writer.add_note(note)
     assert f"{resource_link_prefix}[20100101T000000Z-{resource_name}](20100101T000000Z-{resource_name})" in result_string_io.getvalue()
 
+def test_output_multiple_resources(note_writer, result_string_io):
+    test_resources = [
+        ("Test-page-color-Final.pdf", "application/pdf", 'b64-test-page-color-final-pdf.txt', ""),
+        ("Color-Splash-PNG-Free-Download.png", "image/png", 'b64-color-splash-png-free-download-png.txt', "!"),
+    ]
+    note = Note()
+    note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    for test_resource in test_resources:
+        resource = NoteResource()
+        resource.name = test_resource[0]
+        resource.mime = test_resource[1]
+        with open(Path('pytest_input_files', test_resource[2]), "r") as f:
+            resource.data = f.read()
+        note.resources.append(resource)
+    note_writer.add_note(note)
+    for test_resource in test_resources:
+        assert f"{test_resource[3]}[20100101T000000Z-{test_resource[0]}](20100101T000000Z-{test_resource[0]})" in result_string_io.getvalue()
+
 @pytest.mark.parametrize("resource_name, resource_datafile", [
     ("Test-page-color-Final.pdf", 'b64-test-page-color-final-pdf.txt'),
     ("Color-Splash-PNG-Free-Download.png", 'b64-color-splash-png-free-download-png.txt'),
@@ -87,3 +105,28 @@ def test_output_resource_files(resource_name, resource_datafile):
     note_writer.add_note(note)
 
     assert expected_output_path.exists()
+
+def test_output_multiple_resource_files():
+    test_resources = [
+        ("Test-page-color-Final.pdf", 'b64-test-page-color-final-pdf.txt'),
+        ("Color-Splash-PNG-Free-Download.png", 'b64-color-splash-png-free-download-png.txt'),
+    ]
+    for test_resource in test_resources:
+        expected_output_path = Path('pytest_output', '2001', F"20010203T040506Z-{test_resource[0]}")
+        expected_output_path.unlink(missing_ok=True)
+
+    note_writer = NoteWriter('pytest_output')
+    note = Note()
+    note.created = datetime(2001, 2, 3, 4, 5, 6, tzinfo=timezone.utc)
+    for test_resource in test_resources:
+        resource = NoteResource()
+        resource.name = test_resource[0]
+        resource.mime = "asdf"
+        with open(Path('pytest_input_files', test_resource[1]), "r") as f:
+            resource.data = f.read()
+        note.resources.append(resource)
+    note_writer.add_note(note)
+
+    for test_resource in test_resources:
+        expected_output_path = Path('pytest_output', '2001', F"20010203T040506Z-{test_resource[0]}")
+        assert expected_output_path.exists()
