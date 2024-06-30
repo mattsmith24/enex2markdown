@@ -59,7 +59,7 @@ def test_output_resources(note_writer, result_string_io, resource_name, resource
     note = Note()
     note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     resource = NoteResource()
-    resource.name = resource_name
+    resource.filename = resource_name
     resource.mime = resource_mime
     with open(Path('pytest_input_files', resource_datafile), "r") as f:
         resource.data = f.read()
@@ -76,7 +76,7 @@ def test_output_multiple_resources(note_writer, result_string_io):
     note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     for test_resource in test_resources:
         resource = NoteResource()
-        resource.name = test_resource[0]
+        resource.filename = test_resource[0]
         resource.mime = test_resource[1]
         with open(Path('pytest_input_files', test_resource[2]), "r") as f:
             resource.data = f.read()
@@ -97,7 +97,7 @@ def test_output_resource_files(resource_name, resource_datafile):
     note = Note()
     note.created = datetime(2001, 2, 3, 4, 5, 6, tzinfo=timezone.utc)
     resource = NoteResource()
-    resource.name = resource_name
+    resource.filename = resource_name
     resource.mime = "asdf"
     with open(Path('pytest_input_files', resource_datafile), "r") as f:
         resource.data = f.read()
@@ -120,7 +120,7 @@ def test_output_multiple_resource_files():
     note.created = datetime(2001, 2, 3, 4, 5, 6, tzinfo=timezone.utc)
     for test_resource in test_resources:
         resource = NoteResource()
-        resource.name = test_resource[0]
+        resource.filename = test_resource[0]
         resource.mime = "asdf"
         with open(Path('pytest_input_files', test_resource[1]), "r") as f:
             resource.data = f.read()

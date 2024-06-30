@@ -1,7 +1,7 @@
 import logging
 from lxml import etree
 from datetime import datetime, timezone
-from note import Note
+from note import Note, NoteResource
 
 logger = logging.getLogger("enex2markdown." + __name__)
 
@@ -18,7 +18,11 @@ class EnexParser:
             "created": CreatedHandler(self.note_store),
             "updated": UpdatedHandler(self.note_store),
             "title": TitleHandler(self.note_store),
-            "tag": TagsHandler(self.note_store)
+            "tag": TagsHandler(self.note_store),
+            "resource": ResourceHandler(self.note_store),
+            "data": DataHandler(self.note_store),
+            "mime": MimeHandler(self.note_store),
+            "file-name": FileNameHandler(self.note_store),
         }
 
     def parseNoteXML(self, xmlFile: str) -> None:
@@ -33,7 +37,7 @@ class EnexParser:
     def handleParserEvent(self, ind: int, action: str, elem) -> None:
         logger.debug(f"Found elem with tag: {elem.tag}. ind: {ind}, action: {action}")
         if elem.tag in self.tag_handlers:
-            self.tag_handlers[elem.tag].handleEvent(action, elem)
+            self.tag_handlers[elem.tag].handle_event(action, elem)
 
     def register_note_listener(self, listener):
         self.note_store.note_listener = listener
@@ -43,51 +47,81 @@ class NoteStore:
         self.note = None
         self.note_listener = None
 
-    def newNote(self):
+    def new_note(self):
         self.note = Note()
 
-    def endNote(self):
+    def end_note(self):
         if self.note_listener:
             self.note_listener.add_note(self.note)
+        self.note = None
+
+    def new_resource(self):
+        self.resource = NoteResource()
+
+    def end_resource(self):
+        self.note.resources.append(self.resource)
+        self.resource = None
 
 class BaseHandler:
     def __init__(self, note_store):
         self.note_store = note_store
 
-    def handleEvent(self, action, elem):
+    def handle_event(self, action, elem):
         pass
 
 class NoteHandler(BaseHandler):
-    def handleEvent(self, action, _elem):
+    def handle_event(self, action, _elem):
         if action == "start":
             logger.debug(f"Found a note")
-            self.note_store.newNote()
+            self.note_store.new_note()
         elif action == "end":
-            self.note_store.endNote()
+            self.note_store.end_note()
 
 class CreatedHandler(BaseHandler):
-    def handleEvent(self, action, elem):
+    def handle_event(self, action, elem):
         if action == "end":
             datestr = elem.text
             logger.info(f"Created: {datestr}")
             self.note_store.note.created = parseDateTime(datestr)
 
 class UpdatedHandler(BaseHandler):
-    def handleEvent(self, action, elem):
+    def handle_event(self, action, elem):
         if action == "end":
             datestr = elem.text
             self.note_store.note.updated = parseDateTime(datestr)
 
 class TitleHandler(BaseHandler):
-    def handleEvent(self, action, elem):
+    def handle_event(self, action, elem):
         if action == "end":
             logger.info(f"Title: {elem.text}")
             self.note_store.note.title = elem.text
 
 class TagsHandler(BaseHandler):
-    def handleEvent(self, action, elem):
+    def handle_event(self, action, elem):
         if action == "end":
             self.note_store.note.tags.append(elem.text)
+
+class ResourceHandler(BaseHandler):
+    def handle_event(self, action, elem):
+        if action == "start":
+            self.note_store.new_resource()
+        elif action == "end":
+            self.note_store.end_resource()
+
+class DataHandler(BaseHandler):
+    def handle_event(self, action, elem):
+        if action == "end":
+            self.note_store.resource.data = remove_all_whitespace(get_all_elem_text(elem))
+
+class MimeHandler(BaseHandler):
+    def handle_event(self, action, elem):
+        if action == "end":
+            self.note_store.resource.mime = elem.text
+
+class FileNameHandler(BaseHandler):
+    def handle_event(self, action, elem):
+        if action == "end":
+            self.note_store.resource.filename = elem.text
 
 def parseDateTime(datestr: str) -> datetime:
     # Only accepts format:
@@ -100,3 +134,8 @@ def parseDateTime(datestr: str) -> datetime:
     second = int(datestr[13:15])
     return datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc)
 
+def remove_all_whitespace(s):
+    return ''.join(s.split())
+
+def get_all_elem_text(elem):
+    return ''.join(elem.itertext())

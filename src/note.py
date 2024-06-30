@@ -22,7 +22,7 @@ class NoteResource:
     def __init__(self):
         self.data = None
         self.mime = None
-        self.name = None
+        self.filename = None
 
 class NoteWriter(NoteListener):
     class OutputStyle(Enum):
@@ -83,14 +83,14 @@ class NoteWriter(NoteListener):
             yield None
 
     def get_resource_output_filename(self, note, resource):
-        return Path(self.output_obj, str(note.created.year), resource.name)
+        return Path(self.output_obj, str(note.created.year), resource.filename)
 
 
 def fix_resource_names(note):
     if len(note.resources) > 0:
         resource_prefix = note.created.strftime('%Y%m%dT%H%M%SZ') + "-"
         for resource in note.resources:
-            resource.name = resource_prefix + resource.name
+            resource.filename = resource_prefix + resource.filename
 
 def write_title(f, note):
     if note.title is not None:
@@ -117,8 +117,8 @@ def write_resource(f, resource):
     write_resource_link(f, resource)
 
 def write_resource_link(f, resource):
-    if resource.name is not None:
+    if resource.filename is not None:
         img_md = ""
         if "image" in resource.mime:
             img_md = "!"
-        f.write(f"{img_md}[{resource.name}]({resource.name})\n")
+        f.write(f"{img_md}[{resource.filename}]({resource.filename})\n")

@@ -39,3 +39,10 @@ def test_parse_note(single_note, note_listener):
         assert note.created == datetime(2013, 7, 30, 20, 52, 4, tzinfo=timezone.utc)
         assert note.updated == datetime(2013, 7, 30, 20, 56, 24, tzinfo=timezone.utc)
         assert note.tags == ["fake-tag"]
+        assert len(note.resources) == 1
+        assert note.resources[0].data == "/9j/4AAQSkZJRgABAQAAAQABAAD/4gxYSUNDX1BST0ZJTEUAAQEAAAxITGlubwIQAABtbnRyUkd" + \
+            "CIFhZWiAHzgACAAkABgAxAABhY3NwTVNGVAAAAABJRUMgc1JHQgAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLUhQkfeIGT/+uufk8DpM0gy" + \
+            "VjGfmzkgetesnUoTHJ+5Cxn86zmv4/wB75EW+QHAPUH/P9Ky+s1rtrr/wfvOmdBSamnq/xPKp/hpLKmS7x4OBjgn6elee6v4OuLJirRS" + \
+            "Hb/FtyG9s9u1fR0+oTiIRvGq7W4bpisfUGk1CGVWtkIyM57n1rfDY+uqigtU76ffZkUsA6iajHZ6v/P8A4B//2Q=="
+        assert note.resources[0].mime == "image/jpeg"
+        assert note.resources[0].filename == "snapshot-DAE9FC15-88E3-46CF-B744-DA9B1B56EB57.jpg"
