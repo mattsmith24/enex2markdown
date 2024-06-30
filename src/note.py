@@ -5,6 +5,7 @@ from enum import Enum
 from contextlib import contextmanager
 from datetime import datetime
 import base64
+import urllib
 
 from note_listener import NoteListener
 from enml_converter import ENMLConverter
@@ -137,4 +138,5 @@ def write_resource_link(f, resource):
         img_md = ""
         if "image" in resource.mime:
             img_md = "!"
-        f.write(f"{img_md}[{resource.filename}]({resource.filename})\n\n")
+        url = urllib.parse.quote(resource.filename)
+        f.write(f"{img_md}[{resource.filename}]({url})\n\n")
