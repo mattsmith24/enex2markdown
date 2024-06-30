@@ -15,6 +15,7 @@ class Note:
         self.created = None
         self.updated = None
         self.title = None
+        self.content = None
         self.tags = []
         self.resources = []
 

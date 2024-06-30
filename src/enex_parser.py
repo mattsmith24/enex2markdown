@@ -18,6 +18,7 @@ class EnexParser:
             "created": CreatedHandler(self.note_store),
             "updated": UpdatedHandler(self.note_store),
             "title": TitleHandler(self.note_store),
+            "content": ContentHandler(self.note_store),
             "tag": TagsHandler(self.note_store),
             "resource": ResourceHandler(self.note_store),
             "data": DataHandler(self.note_store),
@@ -95,6 +96,11 @@ class TitleHandler(BaseHandler):
         if action == "end":
             logger.info(f"Title: {elem.text}")
             self.note_store.note.title = elem.text
+
+class ContentHandler(BaseHandler):
+    def handle_event(self, action, elem):
+        if action == "end":
+            self.note_store.note.content = elem.text
 
 class TagsHandler(BaseHandler):
     def handle_event(self, action, elem):

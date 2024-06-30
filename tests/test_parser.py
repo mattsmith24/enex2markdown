@@ -36,6 +36,26 @@ def test_parse_note(single_note, note_listener):
 
     for note in note_listener.iter_notes():
         assert note.title == "Test Note for Export"
+        expected_content = textwrap.dedent("""\
+            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
+            <en-note style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+                Hello, World.
+                <div>
+                    <br/>
+                </div>
+                <div>
+                    <en-media alt="" type="image/jpeg" hash="dd7b6d285d09ec054e8cd6a3814ce093"/>
+                </div>
+                <div>
+                    <br/>
+                </div>
+            </en-note>""").split("\n")
+        note_content_lines = note.content.split("\r\n")
+        note_content_lines = [l for l in note_content_lines if len(l.strip()) > 0]
+        assert len(note_content_lines) == len(expected_content)
+        for i in range(0, len(note_content_lines)):
+            assert  note_content_lines[i].strip() == expected_content[i].strip()
         assert note.created == datetime(2013, 7, 30, 20, 52, 4, tzinfo=timezone.utc)
         assert note.updated == datetime(2013, 7, 30, 20, 56, 24, tzinfo=timezone.utc)
         assert note.tags == ["fake-tag"]
