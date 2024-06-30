@@ -1,4 +1,8 @@
+import logging
+
 from lxml import etree
+
+logger = logging.getLogger("enex2markdown." + __name__)
 
 class ENMLConverter:
     def __init__(self):
@@ -6,13 +10,14 @@ class ENMLConverter:
 
     def to_markdown(self, content: str) -> str:
         mdlines = []
-        root = etree.fromstring(remove_xml_pi(content))
+        content = remove_xml_pi(content)
+        root = etree.fromstring(content)
         assert root.tag == "en-note"
         mdlines += elem_to_markdown(root)
         return "\n".join(mdlines)
 
 def remove_xml_pi(content):
-    content_lines = content.split("\r\n")
+    content_lines = content.splitlines()
     content_lines = [c.strip() for c in content_lines if "<?xml " not in c]
     return "\n".join(content_lines)
 
