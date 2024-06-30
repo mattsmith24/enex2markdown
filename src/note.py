@@ -103,7 +103,7 @@ def convert_content_to_markdown(note):
 
 def write_title(f, note):
     if note.title is not None:
-        f.write(f"# {note.title}\n")
+        f.write(f"# {note.title}\n\n")
 
 def write_content(f, note):
     if note.content is not None:
@@ -111,16 +111,16 @@ def write_content(f, note):
 
 def write_created(f, note):
     if note.created is not None:
-        f.write(f"Created: {note.created.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Created: {note.created.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
 def write_updated(f, note):
     if note.updated is not None:
-        f.write(f"Updated: {note.updated.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Updated: {note.updated.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
 def write_tags(f, note):
     if len(note.tags) > 0:
         tagstr = ", ".join(note.tags)
-        f.write(f"Tags: {tagstr}")
+        f.write(f"Tags: {tagstr}\n\n")
 
 def write_resources(f, note):
     for resource in note.resources:
@@ -134,4 +134,4 @@ def write_resource_link(f, resource):
         img_md = ""
         if "image" in resource.mime:
             img_md = "!"
-        f.write(f"{img_md}[{resource.filename}]({resource.filename})\n")
+        f.write(f"{img_md}[{resource.filename}]({resource.filename})\n\n")
