@@ -7,6 +7,7 @@ from datetime import datetime
 import base64
 
 from note_listener import NoteListener
+from enml_converter import ENMLConverter
 
 logger = logging.getLogger("enex2markdown." + __name__)
 
@@ -35,9 +36,11 @@ class NoteWriter(NoteListener):
         self.output_style = output_style
 
     def add_note(self, note):
-        fix_resource_names(note)
+        prefix_resource_names(note)
+        convert_content_to_markdown(note)
         with self.output_stream(note) as f:
             write_title(f, note)
+            write_content(f, note)
             write_created(f, note)
             write_updated(f, note)
             write_tags(f, note)
@@ -87,15 +90,24 @@ class NoteWriter(NoteListener):
         return Path(self.output_obj, str(note.created.year), resource.filename)
 
 
-def fix_resource_names(note):
+def prefix_resource_names(note):
     if len(note.resources) > 0:
         resource_prefix = note.created.strftime('%Y%m%dT%H%M%SZ') + "-"
         for resource in note.resources:
             resource.filename = resource_prefix + resource.filename
 
+def convert_content_to_markdown(note):
+    if note.content is not None:
+        enml_converter = ENMLConverter()
+        note.content = enml_converter.to_markdown(note.content)
+
 def write_title(f, note):
     if note.title is not None:
         f.write(f"# {note.title}\n")
+
+def write_content(f, note):
+    if note.content is not None:
+        f.write(f"{note.content}\n")
 
 def write_created(f, note):
     if note.created is not None:

@@ -33,6 +33,12 @@ def test_output_title(note_writer, result_string_io):
     note_writer.add_note(note)
     assert "Test title" in result_string_io.getvalue()
 
+def test_output_content(note_writer, result_string_io):
+    note = Note()
+    note.content = '<en-note>Test content</en-note>'
+    note_writer.add_note(note)
+    assert "Test content" in result_string_io.getvalue()
+
 def test_output_created(note_writer, result_string_io):
     note = Note()
     note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
