@@ -74,7 +74,7 @@ def test_output_resources(note_writer, result_string_io, resource_name, resource
     note_writer.add_note(note)
     expected_resource_name = resource_name
     if len(expected_resource_name) == 0:
-        expected_resource_name = "file-0"
+        expected_resource_name = "file-0.png"
     assert f"{resource_link_prefix}[20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_resource_name})" in result_string_io.getvalue()
 
 def test_output_multiple_resources(note_writer, result_string_io):

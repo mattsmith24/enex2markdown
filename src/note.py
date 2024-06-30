@@ -95,7 +95,8 @@ def prefix_resource_names(note):
         resource_prefix = note.created.strftime('%Y%m%dT%H%M%SZ') + "-"
         for idx, resource in enumerate(note.resources):
             if resource.filename is None or len(resource.filename.strip()) == 0:
-                resource.filename = f"file-{idx}"
+                extension = resource.mime.split('/')[-1]
+                resource.filename = f"file-{idx}.{extension}"
             resource.filename = resource_prefix + resource.filename
 
 def convert_content_to_markdown(note):
