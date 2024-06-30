@@ -93,7 +93,9 @@ class NoteWriter(NoteListener):
 def prefix_resource_names(note):
     if len(note.resources) > 0:
         resource_prefix = note.created.strftime('%Y%m%dT%H%M%SZ') + "-"
-        for resource in note.resources:
+        for idx, resource in enumerate(note.resources):
+            if resource.filename is None or len(resource.filename.strip()) == 0:
+                resource.filename = f"file-{idx}"
             resource.filename = resource_prefix + resource.filename
 
 def convert_content_to_markdown(note):

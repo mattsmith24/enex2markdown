@@ -60,6 +60,7 @@ def test_output_tags(note_writer, result_string_io):
 @pytest.mark.parametrize("resource_name, resource_mime, resource_datafile, resource_link_prefix", [
     ("Test-page-color-Final.pdf", "application/pdf", 'b64-test-page-color-final-pdf.txt', ""),
     ("Color-Splash-PNG-Free-Download.png", "image/png", 'b64-color-splash-png-free-download-png.txt', "!"),
+    ("", "image/png", 'b64-color-splash-png-free-download-png.txt', "!"),
 ])
 def test_output_resources(note_writer, result_string_io, resource_name, resource_mime, resource_datafile, resource_link_prefix):
     note = Note()
@@ -71,7 +72,10 @@ def test_output_resources(note_writer, result_string_io, resource_name, resource
         resource.data = f.read()
     note.resources.append(resource)
     note_writer.add_note(note)
-    assert f"{resource_link_prefix}[20100101T000000Z-{resource_name}](20100101T000000Z-{resource_name})" in result_string_io.getvalue()
+    expected_resource_name = resource_name
+    if len(expected_resource_name) == 0:
+        expected_resource_name = "file-0"
+    assert f"{resource_link_prefix}[20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_resource_name})" in result_string_io.getvalue()
 
 def test_output_multiple_resources(note_writer, result_string_io):
     test_resources = [
