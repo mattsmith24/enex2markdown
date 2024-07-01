@@ -72,28 +72,66 @@ def test_output_tags(note_writer, result_string_io):
     note_writer.add_note(note)
     assert "Tags: hello, world" in result_string_io.getvalue()
 
-@pytest.mark.parametrize("resource_name, resource_mime, resource_datafile, resource_link_prefix", [
-    ("Test-page-color-Final.pdf", "application/pdf", 'b64-test-page-color-final-pdf.txt', ""),
-    ("Color Splash PNG Free Download.png", "image/png", 'b64-color-splash-png-free-download-png.txt', "!"),
-    ("", "image/png", 'b64-color-splash-png-free-download-png.txt', "!"),
-])
-def test_output_resources(note_writer, result_string_io, resource_name, resource_mime, resource_datafile, resource_link_prefix):
+def test_output_resources(note_writer, result_string_io):
     note = Note()
     note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     resource = NoteResource()
-    resource.filename = resource_name
-    resource.mime = resource_mime
-    with open(Path('pytest_input_files', resource_datafile), "r") as f:
+    resource.filename = "Test-page-color-Final.pdf"
+    resource.mime = "application/pdf"
+    with open(Path('pytest_input_files', 'b64-test-page-color-final-pdf.txt'), "r") as f:
         resource.data = f.read()
     note.resources.append(resource)
     note_writer.add_note(note)
-    expected_resource_name = resource_name
-    if len(expected_resource_name) == 0:
-        expected_resource_name = "file-0.png"
+    expected_resource_name = "Test-page-color-Final.pdf"
     expected_url = expected_resource_name
-    if " " in expected_url:
-        expected_url = expected_url.replace(" ", "%20")
-    assert f"{resource_link_prefix}[20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_url})" in result_string_io.getvalue()
+    assert f"[20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_url})" in result_string_io.getvalue()
+
+def test_output_image_resources(note_writer, result_string_io):
+    note = Note()
+    note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    resource = NoteResource()
+    resource.filename = "Color Splash PNG Free Download.png"
+    resource.mime = "image/png"
+    with open(Path('pytest_input_files', 'b64-color-splash-png-free-download-png.txt'), "r") as f:
+        resource.data = f.read()
+    note.resources.append(resource)
+    note_writer.add_note(note)
+    expected_resource_name = "Color Splash PNG Free Download.png"
+    expected_url = expected_resource_name
+    expected_url = expected_url.replace(" ", "%20") # url-encoded spaces
+    assert f"![20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_url})" in result_string_io.getvalue()
+
+def test_output_image_resources_blank_filename(note_writer, result_string_io):
+    note = Note()
+    note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    resource = NoteResource()
+    resource.filename = ""
+    resource.mime = "image/png"
+    with open(Path('pytest_input_files', 'b64-color-splash-png-free-download-png.txt'), "r") as f:
+        resource.data = f.read()
+    note.resources.append(resource)
+    note_writer.add_note(note)
+    expected_resource_name = "file-0.png" # Filename created using an index and mime-type
+    expected_url = expected_resource_name
+    assert f"![20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_url})" in result_string_io.getvalue()
+
+def test_output_image_resources_weird_filename(note_writer, result_string_io):
+    note = Note()
+    note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    resource = NoteResource()
+    resource.filename = "weird-characters:é😀.png"
+    resource.mime = "image/png"
+    with open(Path('pytest_input_files', 'b64-color-splash-png-free-download-png.txt'), "r") as f:
+        resource.data = f.read()
+    note.resources.append(resource)
+    note_writer.add_note(note)
+    # Filename translations
+    # : -> -
+    # é -> -
+    # 😀 dropped
+    expected_resource_name = "weird-characters-e.png"
+    expected_url = expected_resource_name
+    assert f"![20100101T000000Z-{expected_resource_name}](20100101T000000Z-{expected_url})" in result_string_io.getvalue()
 
 def test_output_multiple_resources(note_writer, result_string_io):
     test_resources = [

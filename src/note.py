@@ -6,6 +6,8 @@ from contextlib import contextmanager
 from datetime import datetime
 import base64
 import urllib
+import unicodedata
+import re
 
 from note_listener import NoteListener
 from enml_converter import ENMLConverter
@@ -37,7 +39,7 @@ class NoteWriter(NoteListener):
         self.output_style = output_style
 
     def add_note(self, note):
-        prefix_resource_names(note)
+        fix_resource_names(note)
         convert_content_to_markdown(note)
         with self.output_stream(note) as f:
             write_title(f, note)
@@ -91,14 +93,23 @@ class NoteWriter(NoteListener):
         return Path(self.output_obj, str(note.created.year), resource.filename)
 
 
-def prefix_resource_names(note):
+def fix_resource_names(note):
     if len(note.resources) > 0:
         resource_prefix = note.created.strftime('%Y%m%dT%H%M%SZ') + "-"
         for idx, resource in enumerate(note.resources):
-            if resource.filename is None or len(resource.filename.strip()) == 0:
-                extension = resource.mime.split('/')[-1]
-                resource.filename = f"file-{idx}.{extension}"
-            resource.filename = resource_prefix + resource.filename
+            resource.filename = prefix_resource_name(resource_prefix, idx, resource)
+            resource.filename = normalize_filename(resource.filename)
+
+def prefix_resource_name(resource_prefix, idx, resource):
+    if resource.filename is None or len(resource.filename.strip()) == 0:
+        extension = resource.mime.split('/')[-1]
+        resource.filename = f"file-{idx}.{extension}"
+    return resource_prefix + resource.filename
+
+def normalize_filename(filename):
+    normalized_filename = unicodedata.normalize('NFKD', filename)
+    normalized_filename = normalized_filename.encode(encoding="ascii", errors="ignore").decode(encoding="ascii")
+    return re.sub(r'[^0-9a-zA-Z_.\s-]', r'-', normalized_filename)
 
 def convert_content_to_markdown(note):
     if note.content is not None:
