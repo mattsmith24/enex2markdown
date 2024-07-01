@@ -57,7 +57,7 @@ class NoteWriter(NoteListener):
             filename = self.get_output_filename(note)
             self.create_outputfile_dir(filename)
             logger.debug(f"Writing file: {filename}")
-            f = open(filename, "w")
+            f = open(filename, "w", encoding="utf-8")
             yield f
             f.close()
         else:

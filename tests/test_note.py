@@ -15,6 +15,21 @@ def test_output_filename():
 
     assert expected_output_path.exists()
 
+def test_output_content_utf8():
+    # Windows open() uses cp1252 by default but some characters can't be printed
+    # in that encoding. UTF-8 can handle anything
+    expected_output_path = Path('pytest_output', '2010', '20100101T000000Z.md')
+    expected_output_path.unlink(missing_ok=True)
+
+    note_writer = NoteWriter('pytest_output')
+    note = Note()
+    note.created = datetime(2010, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    note.title = "Unprintable with cp1252: 😀"
+    note_writer.add_note(note)
+
+    # If the file exists, then we didn't get an exception and crash
+    assert expected_output_path.exists()
+
 @pytest.fixture
 def result_string_io():
     result = io.StringIO()
