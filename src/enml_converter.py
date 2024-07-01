@@ -35,14 +35,23 @@ def elem_to_markdown(elem):
 
 def before_elem(elem, mdlines):
     if elem.tag == "a":
-        text = elem.text.strip()
         url = elem.get('href')
-        mdlines.append(f"[{text}]({url})")
+        if url is not None and len(url.strip()) > 0:
+            text = get_anchor_text(elem)
+            mdlines.append(f"[{text}]({url})")
         return False
     if elem.tag == "div":
         mdlines.append("")
         mdlines.append("")
     return True
+
+def get_anchor_text(elem):
+    text = elem.text
+    if text is None or len(text.strip()) == 0:
+        url = elem.get('href')
+        if url is not None and len(url.strip()) > 0:
+            text = url
+    return text.strip()
 
 def after_elem(elem, mdlines):
     if elem.tag == "div":
