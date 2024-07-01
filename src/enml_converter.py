@@ -14,6 +14,7 @@ class ENMLConverter:
         root = etree.fromstring(content)
         assert root.tag == "en-note"
         mdlines += elem_to_markdown(root)
+        mdlines = remove_multiple_blank_lines(mdlines)
         return "\n".join(mdlines)
 
 def remove_xml_pi(content):
@@ -60,3 +61,16 @@ def after_elem(elem, mdlines):
     elif elem.tag == "br":
         mdlines.append("")
         mdlines.append("")
+
+def remove_multiple_blank_lines(mdlines):
+    res = []
+    previous_blank_count = 0
+    for line in mdlines:
+        if len(line.strip()) > 0:
+            res.append(line)
+            previous_blank_count = 0
+        else:
+            if previous_blank_count < 2:
+                res.append(line)
+            previous_blank_count += 1
+    return res

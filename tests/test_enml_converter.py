@@ -46,3 +46,23 @@ def test_div():
         </en-note>
     """))
     assert result == "\n\nHello World!\n\n"
+
+def test_collapse_consecutive_blank_lines():
+    enml_converter = ENMLConverter()
+    result = enml_converter.to_markdown(textwrap.dedent("""
+        <en-note>
+            <div>
+                <div>
+                    
+
+
+
+                    <div>Hello World!</div>
+                    
+
+
+                </div>
+            </div>
+        </en-note>
+    """))
+    assert result == "\n\nHello World!\n\n"
