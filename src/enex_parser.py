@@ -27,13 +27,9 @@ class EnexParser:
         }
 
     def parseNoteXML(self, xmlFile: str) -> None:
-        counter = 100
         context = etree.iterparse(xmlFile, events=["start", "end"], encoding='utf-8', strip_cdata=False)
         for ind, (action, elem) in enumerate(context):
             self.handleParserEvent(ind, action, elem)
-            counter -= 1
-            if counter < 1:
-                break
 
     def handleParserEvent(self, ind: int, action: str, elem) -> None:
         logger.debug(f"Found elem with tag: {elem.tag}. ind: {ind}, action: {action}")
