@@ -27,7 +27,7 @@ class EnexParser:
         }
 
     def parseNoteXML(self, xmlFile: str) -> None:
-        context = etree.iterparse(xmlFile, events=["start", "end"], encoding='utf-8', strip_cdata=False)
+        context = etree.iterparse(xmlFile, events=["start", "end"], encoding='utf-8', strip_cdata=False, huge_tree=True)
         for ind, (action, elem) in enumerate(context):
             self.handleParserEvent(ind, action, elem)
 
