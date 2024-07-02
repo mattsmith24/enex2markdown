@@ -25,9 +25,14 @@ def test_write_file(single_note):
         assert "Test Note for Export" in text
         assert "Created: 2013-07-30 20:52:04" in text
 
+class NoteListenerForTests(NoteListener):
+    def iter_notes(self):
+        for item in self.notes:
+            yield item
+
 @pytest.fixture
 def note_listener():
-    return NoteListener()
+    return NoteListenerForTests()
 
 def test_parse_note(single_note, note_listener):
     parser = EnexParser()

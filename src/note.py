@@ -32,7 +32,7 @@ class NoteResource:
 class NoteWriter(NoteListener):
     class OutputStyle(Enum):
         PATH = 1
-        STREAM = 2
+        STREAM = 2 # For testing
 
     def __init__(self, output_obj, output_style = OutputStyle.PATH):
         self.output_obj = output_obj
@@ -49,9 +49,6 @@ class NoteWriter(NoteListener):
             write_tags(f, note)
             write_resources(f, note)
         self.write_resource_files(note)
-
-    def iter_notes(self):
-        pass
 
     @contextmanager
     def output_stream(self, note):
@@ -87,7 +84,7 @@ class NoteWriter(NoteListener):
             yield f
             f.close()
         else:
-            yield None
+            yield None # Resources can't be streamed
 
     def get_resource_output_filename(self, note, resource):
         return Path(self.output_obj, str(note.created.year), resource.filename)
