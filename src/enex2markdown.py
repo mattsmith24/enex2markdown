@@ -11,7 +11,7 @@ logger.setLevel(logging.WARNING)
 
 def get_cli_args():
     argparser = argparse.ArgumentParser(
-        prog='ENEX2Markdown',
+        prog='enex2markdown.py',
         description='Converts an EXEX export file from Evernote to a directory of markdown files and attachments.',
         )
     argparser.add_argument('input_filename')

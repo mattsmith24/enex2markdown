@@ -19,7 +19,7 @@ pipenv run python enex2markdown.py INPUT_FILENAME
 Help output:
 
 ```
-usage: ENEX2Markdown [-h] [-o OUTPUT_DIR] [-l {debug,info,warning,error,critical}] input_filename
+usage: enex2markdown.py [-h] [-o OUTPUT_DIR] [-l {debug,info,warning,error,critical}] input_filename
 
 Converts an EXEX export file from Evernote to a directory of markdown files and attachments.
 
